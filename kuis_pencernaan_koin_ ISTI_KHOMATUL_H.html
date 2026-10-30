@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukasi: Balap Koin Sistem Pencernaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #7dd3fc; /* Sky blue background */
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l1.43 1.43-28.56 28.56L26.066 28.56 54.627 0zm-47.254 0l28.56 28.56-1.43 1.43L5.943 1.43 7.373 0zM0 54.627l1.43-1.43 28.56 28.56-1.43 1.43L0 54.627zm60-47.254l-28.56 28.56 1.43-1.43L60 5.943 58.57 7.373z' fill='%23ffffff' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .font-fun {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .title-shadow {
+            text-shadow: 2px 2px 0px #166534, -2px -2px 0 #166534, 2px -2px 0 #166534, -2px 2px 0 #166534, 4px 4px 0px rgba(0,0,0,0.3);
+        }
+
+        .jar-container {
+            position: relative;
+            width: 130px;
+            height: 190px;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+
+        .jar-back {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 100%;
+            border: 6px solid rgba(255, 255, 255, 0.9);
+            border-top: none;
+            border-radius: 0 0 30px 30px;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1);
+            z-index: 5;
+        }
+
+        .jar-front {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 100%;
+            border-radius: 0 0 30px 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.4) 100%);
+            z-index: 15;
+            pointer-events: none;
+            box-shadow: inset -5px -5px 15px rgba(255,255,255,0.6);
+        }
+
+        .jar-lip {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 124px;
+            height: 24px;
+            border: 6px solid rgba(255, 255, 255, 1);
+            border-radius: 12px;
+            background: rgba(220, 245, 255, 0.8);
+            z-index: 16;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .coin-stack {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            height: 170px;
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            justify-content: flex-start;
+            z-index: 10;
+        }
+
+        .coin {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffe066, #f59e0b);
+            border: 4px solid #d97706;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.5), 0 4px 0 #b45309, 0 5px 5px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.4rem;
+            color: #fff;
+            text-shadow: 2px 2px 0px #b45309;
+            margin-top: -30px; 
+            animation: dropIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
+            position: relative;
+        }
+
+        @keyframes dropIn {
+            0% { transform: translateY(-200px) scale(0.3) rotate(-20deg); opacity: 0; }
+            50% { transform: translateY(20px) scale(1.1) rotate(10deg); }
+            100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes shakeWrong {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            20%, 60% { transform: translateX(-8px) rotate(-3deg); }
+            40%, 80% { transform: translateX(8px) rotate(3deg); }
+        }
+
+        .shake-animation {
+            animation: shakeWrong 0.4s ease-in-out;
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .correct-animation {
+            border-color: #22c55e !important;
+            background-color: #f0fdf4 !important;
+            transform: scale(1.02);
+            transition: all 0.2s;
+        }
+
+        .team-panel {
+            transition: all 0.3s ease;
+        }
+
+        .btn-hover-effect {
+            transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
+        }
+        .btn-hover-effect:hover {
+            filter: brightness(1.1);
+        }
+        .btn-hover-effect:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 0 rgba(0,0,0,0.2) !important;
+            border-bottom-width: 2px !important;
+            margin-bottom: 6px;
+        }
+
+        /* Floating animation for decorative items */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        #game-board {
+            display: grid;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(2, 1fr); } 
+        @media (min-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-green-500 text-white text-center py-5 shadow-[0_6px_0_0_rgba(21,128,61,1)] z-10 relative mb-4 border-b-4 border-green-700">
+        <h1 class="text-4xl md:text-5xl font-fun tracking-wide title-shadow text-yellow-300">🏅 BALAP KOIN PENCERNAAN 🏅</h1>
+        <p class="text-lg md:text-xl mt-2 font-bold opacity-95">SD Kelas 6 - Kumpulkan Koin Terbanyak!</p>
+        
+        <!-- Decorative clouds -->
+        <div class="absolute top-2 left-4 text-4xl floating hidden md:block">☁️</div>
+        <div class="absolute top-6 right-8 text-3xl floating hidden md:block" style="animation-delay: 1s;">☁️</div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 relative">
+        
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="bg-white p-8 md:p-10 rounded-[2rem] shadow-[0_10px_0_0_rgba(0,0,0,0.1)] w-full max-w-md text-center transform transition-all border-4 border-gray-100 relative mt-8">
+            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 text-6xl floating">🎮</div>
+            <h2 class="text-3xl font-fun text-blue-600 mb-8 mt-4">PENGATURAN</h2>
+            
+            <div class="mb-6 text-left bg-blue-50 p-4 rounded-2xl border-2 border-blue-100">
+                <label class="block text-blue-800 font-bold mb-3 text-lg text-center">Berapa Regu yang Main?</label>
+                <div class="flex gap-4 justify-center">
+                    <button class="team-btn w-16 h-16 rounded-2xl bg-blue-500 text-white border-b-4 border-blue-700 font-fun text-3xl btn-hover-effect shadow-md" onclick="selectTeams(2)">2</button>
+                    <button class="team-btn w-16 h-16 rounded-2xl bg-gray-200 text-gray-500 border-b-4 border-gray-400 font-fun text-3xl btn-hover-effect shadow-md" onclick="selectTeams(3)">3</button>
+                    <button class="team-btn w-16 h-16 rounded-2xl bg-gray-200 text-gray-500 border-b-4 border-gray-400 font-fun text-3xl btn-hover-effect shadow-md" onclick="selectTeams(4)">4</button>
+                </div>
+            </div>
+
+            <div class="mb-8 text-left bg-yellow-50 p-4 rounded-2xl border-2 border-yellow-100">
+                <label class="block text-yellow-800 font-bold mb-3 text-lg text-center">Target Koin (Skor Menang):</label>
+                <div class="flex items-center justify-center gap-2">
+                    <span class="text-3xl">🪙</span>
+                    <input type="number" id="target-score" value="15" min="5" max="100" class="w-24 px-2 py-2 rounded-xl border-4 border-yellow-300 focus:border-yellow-500 focus:outline-none text-3xl text-center font-fun text-gray-800 shadow-inner">
+                </div>
+                <p class="text-sm font-bold text-yellow-600 mt-3 text-center">Tersedia 100 soal rahasia!</p>
+            </div>
+
+            <button onclick="startGame()" class="w-full bg-red-500 hover:bg-red-600 text-white border-b-8 border-red-700 font-fun text-3xl py-4 rounded-2xl btn-hover-effect shadow-lg tracking-wider">
+                🚀 MULAI BALAPAN!
+            </button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden w-full flex-col h-full items-center">
+            <div id="game-board" class="w-full flex-grow">
+                <!-- Team panels will be injected here by JS -->
+            </div>
+            <button onclick="resetGame()" class="mt-8 mb-6 px-8 py-3 bg-white text-gray-700 font-bold font-fun text-xl rounded-2xl shadow-[0_5px_0_0_rgba(156,163,175,1)] border-2 border-gray-200 hover:bg-gray-50 transition active:translate-y-1">
+                ⬅️ KEMBALI
+            </button>
+        </div>
+
+        <!-- Winner Screen -->
+        <div id="winner-screen" class="hidden bg-white p-10 rounded-[2rem] shadow-2xl w-full max-w-lg text-center border-8 border-yellow-400 relative overflow-hidden mt-8">
+            <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
+            <div class="text-7xl mb-4 floating">🏆</div>
+            <h2 class="text-5xl font-fun text-yellow-500 mb-2 drop-shadow-md">HEBAT! 🎉</h2>
+            <div id="winner-name" class="text-4xl font-fun text-green-500 mb-8 z-10 relative title-shadow">Tim 1 Juara!</div>
+            <div class="flex justify-center mb-10">
+                <div class="coin scale-150 transform origin-center shadow-2xl" style="margin:0; animation:none;">1</div>
+            </div>
+            <p class="text-xl font-bold text-gray-600 mb-8 z-10 relative">Berhasil menjadi penguasa materi Sistem Pencernaan!</p>
+            <button onclick="resetGame()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-fun text-3xl py-4 rounded-2xl btn-hover-effect border-b-8 border-blue-700 shadow-lg z-10 relative">
+                🔄 MAIN LAGI
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // 100 Bank Soal Pencernaan (Campuran Benar dan Salah)
+        const bankSoal = [
+            { text: "Pencernaan makanan pertama kali terjadi di dalam mulut.", answer: true },
+            { text: "Gigi seri berfungsi untuk mengoyak dan merobek makanan.", answer: false }, // Gigi taring
+            { text: "Enzim amilase pada air liur mengubah karbohidrat (zat tepung) menjadi zat gula.", answer: true },
+            { text: "Lidah berfungsi membantu membolak-balik makanan di dalam mulut.", answer: true },
+            { text: "Kerongkongan adalah saluran pencernaan yang menghubungkan mulut dengan usus halus.", answer: false }, // dengan lambung
+            { text: "Gerak peristaltik terjadi di kerongkongan untuk mendorong makanan masuk ke lambung.", answer: true },
+            { text: "Lambung terletak di rongga perut sebelah kanan atas.", answer: false }, // kiri atas
+            { text: "Asam klorida (HCl) dalam lambung berfungsi untuk membunuh kuman penyakit yang masuk bersama makanan.", answer: true },
+            { text: "Enzim pepsin di lambung berfungsi memecah protein menjadi pepton.", answer: true },
+            { text: "Enzim renin di lambung berfungsi mengendapkan protein susu menjadi kasein.", answer: true },
+            { text: "Usus halus merupakan saluran pencernaan terpanjang dalam tubuh manusia.", answer: true },
+            { text: "Pencernaan mekanis terjadi di dalam usus besar dengan bantuan bakteri.", answer: false }, // usus besar = pembusukan
+            { text: "Usus dua belas jari (duodenum) adalah bagian dari usus halus.", answer: true },
+            { text: "Pankreas menghasilkan getah pankreas yang dialirkan ke usus halus.", answer: true },
+            { text: "Getah empedu dihasilkan oleh lambung.", answer: false }, // Hati
+            { text: "Fungsi empedu adalah untuk mengencerkan dan mencerna lemak.", answer: true },
+            { text: "Enzim lipase berfungsi mengubah lemak menjadi asam lemak dan gliserol.", answer: true },
+            { text: "Penyerapan sari-sari makanan terjadi secara maksimal di dalam usus besar.", answer: false }, // usus halus
+            { text: "Sisa makanan yang tidak diserap oleh usus halus akan masuk ke usus besar.", answer: true },
+            { text: "Fungsi utama usus besar adalah menyerap air dan garam mineral dari sisa makanan.", answer: true },
+            { text: "Bakteri Escherichia coli (E. coli) di usus besar menyebabkan penyakit diare.", answer: false }, // Membantu pembusukan, kondisi normal tidak bikin sakit
+            { text: "Anus adalah ujung saluran pencernaan tempat keluarnya feses (kotoran).", answer: true },
+            { text: "Proses pengeluaran sisa pencernaan dari anus disebut defekasi.", answer: true },
+            { text: "Diare adalah penyakit yang ditandai dengan feses cair dan buang air besar terus-menerus.", answer: true },
+            { text: "Penyakit maag terjadi karena peradangan pada dinding usus buntu.", answer: false }, // Dinding lambung
+            { text: "Apendisitis adalah nama medis untuk penyakit radang usus buntu.", answer: true },
+            { text: "Karies gigi atau gigi berlubang disebabkan oleh bakteri yang mengubah sisa gula menjadi asam.", answer: true },
+            { text: "Sariawan disebabkan oleh kekurangan vitamin C.", answer: true },
+            { text: "Konstipasi (sembelit) terjadi karena terlalu banyak makan serat.", answer: false }, // Kurang serat
+            { text: "Tifus adalah penyakit pencernaan yang disebabkan oleh infeksi bakteri Salmonella typhi.", answer: true },
+            { text: "Gigi taring pada manusia berfungsi untuk memotong makanan.", answer: false }, // Merobek
+            { text: "Gigi geraham berfungsi untuk mengunyah dan melumatkan makanan.", answer: true },
+            { text: "Jumlah gigi susu pada anak-anak adalah 32 buah.", answer: false }, // 20 buah
+            { text: "Kelenjar ludah terletak di bawah lidah dan rahang.", answer: true },
+            { text: "Pencernaan mekanis di mulut dilakukan oleh gigi.", answer: true },
+            { text: "Pencernaan kimiawi di mulut dibantu oleh enzim ptialin (amilase).", answer: true },
+            { text: "Bentuk kerongkongan menyerupai tabung panjang berotot.", answer: true },
+            { text: "Makanan di dalam lambung diaduk dan diremas secara mekanis oleh otot lambung.", answer: true },
+            { text: "Enzim pencernaan selalu bekerja memecah partikel kecil menjadi partikel besar.", answer: false }, // Besar jadi kecil
+            { text: "Usus kosong (jejunum) merupakan tempat utama penyerapan sari makanan.", answer: false }, // Usus penyerapan (ileum)
+            { text: "Enzim tripsin berfungsi memecah protein menjadi asam amino.", answer: true },
+            { text: "Usus buntu (sekum) adalah pertemuan antara usus halus dan usus besar.", answer: true },
+            { text: "Penyakit kolera disebabkan oleh makanan yang mengandung banyak vitamin C.", answer: false }, // Bakteri vibrio cholerae
+            { text: "Makan secara teratur dapat mencegah terjadinya penyakit maag.", answer: true },
+            { text: "Mencuci tangan sebelum makan adalah salah satu cara menjaga kesehatan sistem pencernaan.", answer: true },
+            { text: "Bakteri E. coli di usus besar membantu pembentukan vitamin K.", answer: true },
+            { text: "Tukak lambung (luka lambung) bisa disebabkan oleh asam lambung yang berlebihan.", answer: true },
+            { text: "Feses dibentuk dan disimpan sementara di rektum sebelum dikeluarkan.", answer: true },
+            { text: "Vili atau jonjot usus terdapat di dalam lambung.", answer: false }, // Usus halus
+            { text: "Fungsi jonjot usus (vili) adalah memperluas permukaan penyerapan sari makanan.", answer: true },
+            { text: "Pankreas terletak di bawah lambung.", answer: true },
+            { text: "Hati adalah kelenjar pencernaan terbesar dalam tubuh manusia.", answer: true },
+            { text: "Enzim amilase hanya dihasilkan oleh kelenjar ludah.", answer: false }, // Pankreas juga menghasilkan
+            { text: "Karbohidrat merupakan sumber energi utama bagi tubuh.", answer: true },
+            { text: "Protein hanya diperlukan oleh tubuh orang dewasa.", answer: false }, // Anak-anak untuk pertumbuhan
+            { text: "Lemak berfungsi sebagai cadangan makanan dan pelindung organ tubuh.", answer: true },
+            { text: "Vitamin D banyak terdapat pada buah jeruk.", answer: false }, // Sinar matahari/ikan
+            { text: "Kalsium sangat penting untuk pembentukan tulang dan gigi.", answer: true },
+            { text: "Kekurangan yodium dapat menyebabkan penyakit gondok.", answer: true },
+            { text: "Anemia disebabkan karena tubuh kekurangan zat besi.", answer: true },
+            { text: "Makanan empat sehat lima sempurna sudah tidak disarankan, kini diganti gizi seimbang.", answer: true },
+            { text: "Serat makanan banyak ditemukan pada daging sapi.", answer: false }, // Sayur/buah
+            { text: "Makanan instan sangat baik dikonsumsi setiap hari untuk pencernaan.", answer: false },
+            { text: "Minum air putih yang cukup dapat mencegah sembelit.", answer: true },
+            { text: "Gigi geraham depan berjumlah 8 buah pada orang dewasa.", answer: true },
+            { text: "Ludah juga berfungsi untuk membasahi makanan agar mudah ditelan.", answer: true },
+            { text: "Proses pencernaan dari mulut hingga menjadi feses memakan waktu kurang dari 1 jam.", answer: false }, // Belasan/puluhan jam
+            { text: "Lambung memiliki bentuk seperti kantong atau huruf J.", answer: true },
+            { text: "Usus halus pada manusia dewasa panjangnya bisa mencapai lebih dari 6 meter.", answer: true },
+            { text: "Sistem pencernaan tidak berkaitan dengan sistem peredaran darah.", answer: false }, // Darah mengangkut sari makanan
+            { text: "Penyakit disentri menyebabkan penderita buang air besar berlendir dan berdarah.", answer: true },
+            { text: "Batu empedu terbentuk karena kolesterol yang mengeras di kantung empedu.", answer: true },
+            { text: "Hepatitis adalah peradangan pada organ pankreas.", answer: false }, // Hati
+            { text: "Mengunyah makanan hingga halus dapat meringankan kerja lambung.", answer: true },
+            { text: "Tersedak terjadi karena makanan salah masuk ke saluran pernapasan (tenggorokan).", answer: true },
+            { text: "Katup epiglotis akan menutup tenggorokan saat kita menelan makanan.", answer: true },
+            { text: "Sistem pencernaan manusia tergolong pencernaan intraseluler.", answer: false }, // Ekstraseluler
+            { text: "Ambeien atau wasir adalah pembengkakan pembuluh darah di sekitar anus.", answer: true },
+            { text: "Jajan sembarangan dapat menyebabkan penularan penyakit diare dan tifus.", answer: true },
+            { text: "Gigi manusia dilapisi oleh email yang merupakan jaringan paling keras dalam tubuh.", answer: true },
+            { text: "Penyakit gondongan menyerang kelenjar ludah di bawah telinga.", answer: true },
+            { text: "Sari-sari makanan diserap oleh darah dan diedarkan ke seluruh tubuh.", answer: true },
+            { text: "Protein nabati didapatkan dari daging, telur, dan susu.", answer: false }, // Nabati dari tumbuhan (tahu, tempe)
+            { text: "Kwashiorkor adalah penyakit pencernaan akibat kelebihan protein.", answer: false }, // Kekurangan protein
+            { text: "Zat pewarna buatan pada makanan berbahaya bagi organ hati jika dikonsumsi berlebihan.", answer: true },
+            { text: "Vitamin B dan C adalah vitamin yang larut dalam lemak.", answer: false }, // Larut dalam air (A, D, E, K larut lemak)
+            { text: "Bakteri probiotik seperti Lactobacillus baik untuk kesehatan pencernaan.", answer: true },
+            { text: "Makanan basi seringkali mengandung bakteri patogen yang meracuni pencernaan.", answer: true },
+            { text: "Keracunan makanan biasanya ditandai dengan mual, muntah, dan sakit perut.", answer: true },
+            { text: "Pankreas hanya menghasilkan satu jenis enzim.", answer: false }, // Amilase, lipase, tripsin
+            { text: "Peristaltik hanya terjadi di kerongkongan.", answer: false }, // Terjadi di sepanjang saluran pencernaan
+            { text: "Zat makanan pembangun tubuh yang utama adalah lemak.", answer: false }, // Protein
+            { text: "Setelah melalui lambung, makanan berbentuk bubur asam yang disebut kimus (chyme).", answer: true },
+            { text: "Kantung empedu terletak menempel pada organ usus besar.", answer: false }, // Hati
+            { text: "Asam lambung (HCl) dapat membunuh sebagian besar bakteri pada makanan.", answer: true },
+            { text: "Menjaga kebersihan gigi minimal dengan menyikatnya dua kali sehari.", answer: true },
+            { text: "Penyakit malnutrisi terjadi karena tubuh tidak mendapatkan nutrisi yang cukup.", answer: true },
+            { text: "Usus penyerapan (ileum) merupakan bagian terpendek dari usus halus.", answer: false }, // Terpanjang dari 3 bagian
+            { text: "Proses pengunyahan yang kurang sempurna tidak mempengaruhi pencernaan.", answer: false },
+            { text: "Sistem pencernaan terdiri dari saluran pencernaan dan kelenjar pencernaan.", answer: true }
+        ];
+
+        let numberOfTeams = 2;
+        let targetScore = 15;
+        let teams = [];
+        let gameActive = false;
+        let shuffledQuestions = [];
+
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playCoinSound() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            // Mengatur frekuensi untuk membuat suara "cling" koin
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // Note B5
+            osc.frequency.exponentialRampToValueAtTime(1318.51, audioCtx.currentTime + 0.1); // Note E6
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // Setup functions
+        function selectTeams(num) {
+            numberOfTeams = num;
+            // Update UI
+            document.querySelectorAll('.team-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-700');
+                btn.classList.add('bg-gray-200', 'text-gray-500', 'border-gray-400');
+            });
+            event.target.classList.remove('bg-gray-200', 'text-gray-500', 'border-gray-400');
+            event.target.classList.add('bg-blue-500', 'text-white', 'border-blue-700');
+        }
+
+        function shuffleArray(array) {
+            let curId = array.length;
+            // There remain elements to shuffle
+            while (0 !== curId) {
+                // Pick a remaining element
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                // Swap it with the current element.
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function startGame() {
+            initAudio(); // Audio perlu diinisialisasi setelah ada interaksi user
+            
+            let targetInput = document.getElementById('target-score').value;
+            targetScore = parseInt(targetInput);
+            if(isNaN(targetScore) || targetScore < 1 || targetScore > 100) {
+                targetScore = 15; // fallback
+            }
+
+            // Shuffle questions once for the whole game so all teams get same random order
+            shuffledQuestions = shuffleArray([...bankSoal]);
+
+            teams = [];
+            for (let i = 0; i < numberOfTeams; i++) {
+                teams.push({
+                    id: i,
+                    name: `Tim ${i + 1}`,
+                    score: 0,
+                    questionIndex: 0,
+                    colors: getTeamColors(i)
+                });
+            }
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('winner-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('game-screen').classList.add('flex');
+            
+            gameActive = true;
+            renderGameBoard();
+        }
+
+        function getTeamColors(index) {
+            const colors = [
+                { bg: 'bg-blue-200', header: 'bg-blue-500', text: 'text-white', border: 'border-blue-600' },
+                { bg: 'bg-red-200', header: 'bg-red-500', text: 'text-white', border: 'border-red-600' },
+                { bg: 'bg-green-200', header: 'bg-green-500', text: 'text-white', border: 'border-green-600' },
+                { bg: 'bg-purple-200', header: 'bg-purple-500', text: 'text-white', border: 'border-purple-600' }
+            ];
+            return colors[index % colors.length];
+        }
+
+        function renderGameBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            
+            // Set grid class based on number of teams
+            board.className = `w-full flex-grow grid gap-6 grid-${numberOfTeams}`;
+
+            teams.forEach(team => {
+                const q = shuffledQuestions[team.questionIndex];
+                const isFinished = team.questionIndex >= shuffledQuestions.length;
+                
+                const teamPanel = document.createElement('div');
+                teamPanel.id = `team-panel-${team.id}`;
+                teamPanel.className = `team-panel ${team.colors.bg} rounded-[2rem] shadow-[0_8px_0_0_rgba(0,0,0,0.1)] border-4 ${team.colors.border} flex flex-col overflow-hidden relative`;
+                
+                // Header
+                const header = document.createElement('div');
+                header.className = `${team.colors.header} text-white font-bold text-center py-4 text-3xl font-fun tracking-wider border-b-4 ${team.colors.border} shadow-sm`;
+                header.innerText = team.name;
+                
+                // Score Area (Coins)
+                const scoreArea = document.createElement('div');
+                scoreArea.className = 'flex-grow p-4 flex flex-col items-center justify-end relative bg-white/40';
+                scoreArea.innerHTML = `
+                    <div class="absolute top-3 right-4 bg-white/80 px-3 py-1 rounded-full font-fun text-xl ${team.colors.text.replace('white', 'gray-700')} border-2 ${team.colors.border} shadow-sm z-0">
+                        🪙 ${team.score}/${targetScore}
+                    </div>
+                `;
+
+                const jarContainer = document.createElement('div');
+                jarContainer.className = 'jar-container';
+
+                const jarLip = document.createElement('div');
+                jarLip.className = 'jar-lip';
+                
+                const jarBack = document.createElement('div');
+                jarBack.className = 'jar-back';
+
+                const jarFront = document.createElement('div');
+                jarFront.className = 'jar-front';
+
+                const stack = document.createElement('div');
+                stack.className = 'coin-stack';
+                
+                // Add coins to stack
+                for(let i=0; i<team.score; i++) {
+                    const coin = document.createElement('div');
+                    coin.className = 'coin';
+                    coin.innerText = i+1;
+                    stack.appendChild(coin);
+                }
+                
+                jarContainer.appendChild(jarBack);
+                jarContainer.appendChild(stack);
+                jarContainer.appendChild(jarFront);
+                jarContainer.appendChild(jarLip);
+                
+                scoreArea.appendChild(jarContainer);
+
+                // Question Area
+                const questionArea = document.createElement('div');
+                questionArea.id = `question-area-${team.id}`;
+                questionArea.className = 'bg-white p-5 mx-3 mb-3 rounded-3xl shadow-inner border-4 border-gray-100 flex-grow-0 flex flex-col relative z-20';
+                
+                if (!isFinished && gameActive) {
+                    questionArea.innerHTML = `
+                        <div class="text-sm font-bold text-white bg-gray-800 rounded-full px-4 py-1 inline-block w-max mx-auto mb-3 shadow-md">
+                            🎯 SOAL ${team.questionIndex + 1}
+                        </div>
+                        <div class="text-base sm:text-lg md:text-xl font-bold text-gray-800 text-center flex-grow flex items-center justify-center min-h-[90px] px-2 leading-relaxed">
+                            "${q.text}"
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-5">
+                            <button onclick="submitAnswer(${team.id}, true)" class="w-full bg-green-400 hover:bg-green-500 text-white font-fun py-3 rounded-2xl btn-hover-effect border-b-8 border-green-600 text-2xl shadow-sm">BENAR</button>
+                            <button onclick="submitAnswer(${team.id}, false)" class="w-full bg-red-400 hover:bg-red-500 text-white font-fun py-3 rounded-2xl btn-hover-effect border-b-8 border-red-600 text-2xl shadow-sm">SALAH</button>
+                        </div>
+                    `;
+                } else if (isFinished && gameActive) {
+                    questionArea.innerHTML = `
+                        <div class="text-center font-fun text-gray-400 text-2xl py-8">
+                            🏁 Soal Habis!
+                        </div>
+                    `;
+                }
+
+                teamPanel.appendChild(header);
+                teamPanel.appendChild(scoreArea);
+                teamPanel.appendChild(questionArea);
+                
+                board.appendChild(teamPanel);
+            });
+        }
+
+        function submitAnswer(teamId, givenAnswer) {
+            if(!gameActive) return;
+
+            const team = teams[teamId];
+            const currentQ = shuffledQuestions[team.questionIndex];
+            const isCorrect = givenAnswer === currentQ.answer;
+
+            const questionArea = document.getElementById(`question-area-${team.id}`);
+
+            if (isCorrect) {
+                // Correct logic
+                playCoinSound();
+                team.score++;
+                questionArea.classList.add('correct-animation');
+                
+                setTimeout(() => {
+                    if(questionArea) questionArea.classList.remove('correct-animation');
+                }, 300);
+
+            } else {
+                // Wrong logic
+                questionArea.classList.add('shake-animation');
+                
+                setTimeout(() => {
+                    if(questionArea) questionArea.classList.remove('shake-animation');
+                }, 400);
+            }
+
+            team.questionIndex++;
+
+            // Check Win Condition
+            if (team.score >= targetScore) {
+                gameActive = false;
+                // Render one last time to show final coin before popping modal
+                renderGameBoard();
+                setTimeout(() => {
+                    showWinner(team);
+                }, 500);
+                return;
+            }
+
+            // Normal re-render for this specific panel to feel fast, 
+            // but for simplicity and integrity we re-render whole board (it's fast enough)
+            renderGameBoard();
+        }
+
+        function showWinner(winningTeam) {
+            document.getElementById('game-screen').classList.remove('flex');
+            document.getElementById('game-screen').classList.add('hidden');
+            
+            const winnerScreen = document.getElementById('winner-screen');
+            winnerScreen.classList.remove('hidden');
+            
+            const winnerName = document.getElementById('winner-name');
+            winnerName.innerText = `${winningTeam.name} Menang!`;
+            
+            // Add fun particle effect (basic CSS workaround)
+            createConfetti();
+        }
+
+        function resetGame() {
+            gameActive = false;
+            document.getElementById('game-screen').classList.remove('flex');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('winner-screen').classList.add('hidden');
+            
+            document.getElementById('setup-screen').classList.remove('hidden');
+            
+            // Cleanup confetti if exists
+            const existingConfetti = document.querySelectorAll('.confetti');
+            existingConfetti.forEach(e => e.remove());
+        }
+
+        function createConfetti() {
+            const colors = ['#fde047', '#4ade80', '#60a5fa', '#f87171', '#c084fc'];
+            for(let i=0; i<50; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti absolute z-50';
+                conf.style.width = Math.random() * 10 + 5 + 'px';
+                conf.style.height = Math.random() * 10 + 5 + 'px';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = -20 + 'px';
+                conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                
+                // Animation settings
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 2;
+                
+                conf.style.animation = `fall ${duration}s linear ${delay}s infinite`;
+                document.body.appendChild(conf);
+            }
+            
+            // Add styles for confetti fall if not exist
+            if(!document.getElementById('confetti-style')) {
+                const style = document.createElement('style');
+                style.id = 'confetti-style';
+                style.innerHTML = `
+                    @keyframes fall {
+                        0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+                        100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+    </script>
+</body>
+</html>
