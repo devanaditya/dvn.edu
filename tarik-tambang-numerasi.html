@@ -1,0 +1,686 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tarik Tambang Numerasi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: papan permainan clay. Panggung tambang di atas, lalu dua panel tim (soal, jawaban, papan angka) kiri dan kanan. */
+:root {
+  --font-display: "Baloo 2", ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+  --font-body: "Nunito", ui-rounded, system-ui, sans-serif;
+
+  --bg: #DCEFE8; --blob1: #C6E5F5; --blob2: #F7E3B5; --veil: rgba(220, 239, 232, .84);
+  --surface: #F7F5FB; --surface-2: #E9E6F3; --ink: #2A2342; --ink-soft: #645C80;
+  --sh-hi: rgba(255, 255, 255, .9); --sh-lo: rgba(80, 70, 120, .26); --sh-in: rgba(110, 100, 150, .2);
+
+  --a: #FF8F3A; --a-dark: #D9621A; --a-tint: #FFDDC2; --on-a: #2B1204;
+  --b: #2F73E0; --b-dark: #1F4FA8; --b-tint: #CFE0FB; --on-b: #FFFFFF;
+  --sun: #FFC93C; --sun-dark: #D79A12; --on-sun: #3A2900;
+  --ok: #1E8A55; --bad: #C9352F; --ok-tint: #CDEEDB; --bad-tint: #F9D3CF;
+
+  --sky1: #BFE5F7; --sky2: #E9F7FB; --cloud: #FFFFFF; --hill1: #93D6AB; --hill2: #72C39A;
+  --ground: #E8B46C; --ground-d: #C98F45; --rope: #B07632; --rope-hi: #E9C47F;
+  --skin: #F6C9A0; --hair: #3A2418;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1F1C33; --blob1: #2A2750; --blob2: #352B45; --veil: rgba(31, 28, 51, .86);
+    --surface: #2F2B4B; --surface-2: #25223D; --ink: #F2EFFB; --ink-soft: #B9B3D3;
+    --sh-hi: rgba(255, 255, 255, .07); --sh-lo: rgba(0, 0, 0, .5); --sh-in: rgba(0, 0, 0, .35);
+    --a: #FF9A52; --a-dark: #D9722A; --a-tint: #5A3A26; --on-a: #2B1204;
+    --b: #6AA2FF; --b-dark: #3F74D4; --b-tint: #2A3E6E; --on-b: #0E1B3A;
+    --sun: #FFD25A; --sun-dark: #E0A92E; --on-sun: #3A2900;
+    --ok: #5BD39A; --bad: #FF8279; --ok-tint: #1F4B3A; --bad-tint: #5A2A2A;
+    --sky1: #2B2F5C; --sky2: #444B82; --cloud: #6A70AA; --hill1: #2F6B63; --hill2: #27595A;
+    --ground: #B98445; --ground-d: #8F6230; --rope: #C58C46; --rope-hi: #EBC785;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1F1C33; --blob1: #2A2750; --blob2: #352B45; --veil: rgba(31, 28, 51, .86);
+  --surface: #2F2B4B; --surface-2: #25223D; --ink: #F2EFFB; --ink-soft: #B9B3D3;
+  --sh-hi: rgba(255, 255, 255, .07); --sh-lo: rgba(0, 0, 0, .5); --sh-in: rgba(0, 0, 0, .35);
+  --a: #FF9A52; --a-dark: #D9722A; --a-tint: #5A3A26; --on-a: #2B1204;
+  --b: #6AA2FF; --b-dark: #3F74D4; --b-tint: #2A3E6E; --on-b: #0E1B3A;
+  --sun: #FFD25A; --sun-dark: #E0A92E; --on-sun: #3A2900;
+  --ok: #5BD39A; --bad: #FF8279; --ok-tint: #1F4B3A; --bad-tint: #5A2A2A;
+  --sky1: #2B2F5C; --sky2: #444B82; --cloud: #6A70AA; --hill1: #2F6B63; --hill2: #27595A;
+  --ground: #B98445; --ground-d: #8F6230; --rope: #C58C46; --rope-hi: #EBC785;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 8% 6%, var(--blob1) 0 120px, transparent 121px),
+    radial-gradient(circle at 96% 40%, var(--blob2) 0 150px, transparent 151px);
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+  padding-block: 12px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input { font: inherit; color: inherit; }
+.app { max-width: 1180px; margin: 0 auto; display: grid; gap: 14px; }
+
+.clay {
+  background: var(--surface);
+  border-radius: 28px;
+  box-shadow:
+    10px 12px 24px var(--sh-lo),
+    -8px -8px 18px var(--sh-hi),
+    inset 4px 4px 8px var(--sh-hi),
+    inset -5px -6px 10px var(--sh-in);
+}
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 3.4vw, 32px); letter-spacing: -.01em; line-height: 1.1; text-wrap: balance; }
+.brand span { color: var(--b); }
+.top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pill {
+  background: var(--surface); border-radius: 99px; padding: 6px 16px; font-weight: 800; font-size: 15px;
+  box-shadow: 5px 6px 12px var(--sh-lo), -4px -4px 9px var(--sh-hi), inset 2px 2px 4px var(--sh-hi), inset -3px -3px 6px var(--sh-in);
+  font-variant-numeric: tabular-nums;
+}
+.btn {
+  appearance: none; border: 0; cursor: pointer; border-radius: 99px; padding: 10px 22px; font-weight: 800;
+  font-family: var(--font-display); font-size: 17px; background: var(--surface); color: var(--ink);
+  box-shadow: 6px 7px 14px var(--sh-lo), -4px -4px 10px var(--sh-hi), inset 2px 2px 5px var(--sh-hi), inset -3px -4px 7px var(--sh-in);
+  transition: transform .1s ease, box-shadow .1s ease; touch-action: manipulation;
+}
+.btn:active { transform: translateY(2px) scale(.98); box-shadow: inset 3px 3px 7px var(--sh-in), inset -3px -3px 6px var(--sh-hi); }
+.btn.primary { background: var(--sun); color: var(--on-sun); }
+.btn.big { font-size: 22px; padding: 12px 30px; }
+.btn.small { padding: 6px 16px; font-size: 15px; }
+.btn:focus-visible, .key:focus-visible, .seg input:focus-visible + span, .field input[type="text"]:focus-visible, .slider:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* stage */
+.stage { position: relative; overflow: hidden; background: linear-gradient(var(--sky1), var(--sky2)); }
+#scene { display: block; width: 100%; height: auto; max-height: 40vh; margin: 0 auto; }
+.gauge-wrap { display: grid; gap: 8px; justify-items: center; padding: 6px 14px 16px; }
+.gauge-label { font-weight: 800; text-align: center; text-wrap: balance; }
+.gauge { display: flex; gap: clamp(3px, .8vw, 7px); align-items: center; justify-content: center; flex-wrap: wrap; min-height: 26px; }
+.pip { width: clamp(10px, 2vw, 17px); aspect-ratio: 1; border-radius: 50%; transition: transform .35s cubic-bezier(.34, 1.56, .5, 1); }
+.pip.pa { background: var(--a-tint); } .pip.pb { background: var(--b-tint); } .pip.pm { background: var(--sun); }
+.pip.on { transform: scale(1.6); box-shadow: 0 3px 6px var(--sh-lo), inset 1px 1px 2px var(--sh-hi); }
+.pip.pa.on { background: var(--a); } .pip.pb.on { background: var(--b); } .pip.pm.on { background: var(--sun-dark); }
+
+/* scene colors */
+.sc-cloud { fill: var(--cloud); } .sc-hill1 { fill: var(--hill1); } .sc-hill2 { fill: var(--hill2); }
+.sc-ground { fill: var(--ground); } .sc-pebble { fill: var(--ground-d); }
+.sc-rope { fill: none; stroke: var(--rope); stroke-width: 10; stroke-linecap: round; }
+.sc-rope-hi { fill: none; stroke: var(--rope-hi); stroke-width: 10; stroke-dasharray: 4 9; }
+.sc-mid { stroke: var(--ink-soft); stroke-width: 3; stroke-dasharray: 4 9; opacity: .55; }
+.sc-goal-a { stroke: var(--a); } .sc-goal-b { stroke: var(--b); }
+.sc-goal { stroke-width: 5; stroke-dasharray: 2 9; stroke-linecap: round; }
+.sc-flag-a { fill: var(--a); } .sc-flag-b { fill: var(--b); }
+.sc-label { font-family: var(--font-display); font-weight: 800; font-size: 20px; fill: var(--ink); text-anchor: middle; }
+.sc-ribbon { fill: var(--sun); } .sc-knot { fill: var(--sun-dark); }
+.cshadow { fill: rgba(40, 25, 10, .28); }
+.limb { fill: none; stroke-width: 17; stroke-linecap: round; stroke-linejoin: round; }
+.skin { stroke: var(--skin); fill: var(--skin); }
+.limb.skin { fill: none; stroke-width: 13; }
+.pants { stroke: var(--pc); }
+.shoe { fill: var(--ink); }
+.shirt { fill: var(--c); } .band { fill: var(--pc); } .hair { fill: var(--hair); }
+.face-ink { fill: #2A2342; } .tongue { fill: #FF7A8A; }
+.teeth { fill: #fff; stroke: #2A2342; stroke-width: 2; stroke-linejoin: round; }
+.brow { stroke: #2A2342; stroke-width: 3.5; stroke-linecap: round; fill: none; }
+.team-a { --c: var(--a); --pc: var(--a-dark); }
+.team-b { --c: var(--b); --pc: var(--b-dark); --skin: #C98F67; }
+#pull { transition: transform .75s cubic-bezier(.34, 1.45, .5, 1); }
+.ropeg { transition: transform .9s ease-in .25s; }
+.bob { animation: bob 1.5s ease-in-out infinite alternate; }
+.team-b .bob { animation-delay: -.75s; }
+.lean { transform: rotate(-14deg); transition: transform .8s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+@keyframes cheer { 0%, 100% { transform: translateY(0) scale(1.05, .92); } 45% { transform: translateY(-40px) scale(.96, 1.06); } }
+
+.pose-cheer, .face-cheer { display: none; }
+.win-a .ropeg, .win-b .ropeg { transform: translateY(106px); }
+.win-a .team-b .lean, .win-b .team-a .lean { transform: rotate(64deg); }
+.win-a .team-a .lean, .win-b .team-b .lean { transform: rotate(-2deg); }
+.win-a .team-b .bob, .win-b .team-a .bob { animation: none; }
+.win-a .team-a .bob, .win-b .team-b .bob { animation: cheer .72s ease-in-out infinite; }
+.win-a .team-a .pose-pull, .win-a .team-a .face-pull, .win-b .team-b .pose-pull, .win-b .team-b .face-pull { display: none; }
+.win-a .team-a .pose-cheer, .win-a .team-a .face-cheer, .win-b .team-b .pose-cheer, .win-b .team-b .face-cheer { display: block; }
+
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.confetti i { position: absolute; top: -20px; width: 12px; height: 12px; border-radius: 50%; animation: fall linear forwards; box-shadow: inset -2px -2px 3px rgba(0, 0, 0, .18), inset 2px 2px 3px rgba(255, 255, 255, .5); }
+@keyframes fall { to { transform: translateY(520px) rotate(360deg); } }
+
+/* result */
+.result { padding: 16px 18px; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.result h2 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 5vw, 44px); line-height: 1.1; display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; align-items: center; }
+.result p { margin: 0; color: var(--ink-soft); font-weight: 700; text-wrap: balance; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* teams */
+.teams { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(8px, 2vw, 16px); }
+.team { --c: var(--a); --ct: var(--a-tint); --on-c: var(--on-a); padding: clamp(8px, 1.6vw, 14px); display: grid; gap: 10px; align-content: start; min-width: 0; }
+.team[data-team="b"] { --c: var(--b); --ct: var(--b-tint); --on-c: var(--on-b); }
+.team-head { display: flex; justify-content: space-between; align-items: center; gap: 6px 10px; flex-wrap: wrap; }
+.team-name {
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(16px, 2.6vw, 24px); line-height: 1.2;
+  background: var(--c); color: var(--on-c); padding: 2px 14px; border-radius: 99px; max-width: 100%; overflow-wrap: anywhere;
+  box-shadow: 3px 4px 8px var(--sh-lo), inset 2px 2px 4px rgba(255, 255, 255, .35), inset -2px -3px 5px rgba(0, 0, 0, .16);
+}
+.tally { display: flex; gap: 12px; font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
+.tally .ok { color: var(--ok); } .tally .bad { color: var(--bad); }
+.qbox {
+  background: var(--ct); border-radius: 22px; padding: 10px 8px 12px; text-align: center; display: grid; gap: 0;
+  box-shadow: inset 3px 3px 6px var(--sh-hi), inset -4px -4px 8px var(--sh-in);
+}
+.qtype { font-weight: 800; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); opacity: .75; }
+.qtext { font-family: var(--font-display); font-weight: 800; font-size: clamp(32px, 6.4vw, 66px); line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.qtext.pop { animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pop { from { transform: scale(.7); opacity: .3; } to { transform: scale(1); opacity: 1; } }
+.answer {
+  min-height: clamp(52px, 8.5vh, 72px); border-radius: 22px; background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 5vw, 44px); font-variant-numeric: tabular-nums;
+  box-shadow: inset 5px 5px 10px var(--sh-in), inset -4px -4px 8px var(--sh-hi);
+}
+.answer .ph { color: var(--ink-soft); opacity: .5; }
+.answer.wrong { background: var(--bad-tint); color: var(--bad); animation: shake .4s ease-in-out; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+.fb { min-height: 2.6em; text-align: center; font-weight: 800; font-size: 14px; line-height: 1.3; color: var(--ink-soft); text-wrap: balance; }
+.fb.ok { color: var(--ok); } .fb.bad { color: var(--bad); }
+.pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(5px, 1.2vw, 10px); }
+.key {
+  appearance: none; border: 0; cursor: pointer; font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(19px, 3.4vw, 30px); min-height: clamp(44px, 7.2vh, 60px); border-radius: 18px; background: var(--ct); color: var(--ink);
+  box-shadow: 4px 5px 9px var(--sh-lo), -3px -3px 7px var(--sh-hi), inset 2px 2px 4px var(--sh-hi), inset -3px -3px 6px var(--sh-in);
+  touch-action: manipulation; transition: transform .08s ease, box-shadow .08s ease; padding: 0;
+}
+.key:active:not(:disabled) { transform: translateY(2px) scale(.96); box-shadow: inset 3px 3px 6px var(--sh-in), inset -2px -2px 5px var(--sh-hi); }
+.key.send { background: var(--c); color: var(--on-c); }
+.key.del { font-size: clamp(13px, 2.3vw, 19px); }
+.key:disabled { opacity: .42; cursor: not-allowed; }
+
+.credit { margin: 0; text-align: center; color: var(--ink-soft); font-weight: 700; font-size: 14px; }
+.credit b { color: var(--ink); font-family: var(--font-display); font-size: 16px; }
+
+/* setup overlay */
+.overlay {
+  position: fixed; inset: 0; z-index: 20; display: grid; place-items: start center; overflow: auto;
+  background: var(--veil); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.setup { width: min(620px, 100%); margin: auto; padding: clamp(18px, 4vw, 30px); display: grid; gap: 16px; }
+.setup h1 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 6vw, 44px); line-height: 1.05; text-wrap: balance; }
+.setup h1 span { color: var(--b); }
+.rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; color: var(--ink-soft); font-weight: 700; }
+.names { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > label, legend, .lbl { font-weight: 800; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); padding: 0; }
+.field input[type="text"] {
+  width: 100%; border: 0; border-radius: 18px; padding: 10px 14px; font-weight: 800; font-size: 18px; background: var(--surface-2);
+  box-shadow: inset 4px 4px 8px var(--sh-in), inset -3px -3px 6px var(--sh-hi);
+}
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 6px; }
+.segs { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg { position: relative; }
+.seg input { position: absolute; opacity: 0; inset: 0; cursor: pointer; margin: 0; }
+.seg span {
+  display: block; padding: 8px 18px; border-radius: 99px; font-weight: 800; font-family: var(--font-display); font-size: 17px; background: var(--surface-2); color: var(--ink);
+  box-shadow: 4px 5px 9px var(--sh-lo), -3px -3px 7px var(--sh-hi), inset 2px 2px 4px var(--sh-hi), inset -3px -3px 6px var(--sh-in);
+}
+.seg input:checked + span { background: var(--sun); color: var(--on-sun); box-shadow: inset 3px 3px 7px rgba(0, 0, 0, .16), inset -2px -2px 5px rgba(255, 255, 255, .45); }
+
+.slider-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.slider-head output {
+  font-family: var(--font-display); font-weight: 800; font-size: 22px; background: var(--sun); color: var(--on-sun); border-radius: 99px; padding: 0 16px; min-width: 5.5em; text-align: center;
+  box-shadow: 3px 4px 8px var(--sh-lo), inset 2px 2px 4px rgba(255, 255, 255, .5), inset -2px -3px 5px rgba(0, 0, 0, .12); font-variant-numeric: tabular-nums;
+}
+.slider { --p: 20%; -webkit-appearance: none; appearance: none; width: 100%; height: 40px; background: transparent; margin: 0; cursor: pointer; touch-action: pan-y; }
+.slider::-webkit-slider-runnable-track { height: 18px; border-radius: 99px; background: linear-gradient(to right, var(--sun) var(--p), var(--surface-2) var(--p)); box-shadow: inset 3px 3px 6px var(--sh-in), inset -2px -2px 5px var(--sh-hi); }
+.slider::-moz-range-track { height: 18px; border-radius: 99px; background: linear-gradient(to right, var(--sun) var(--p), var(--surface-2) var(--p)); box-shadow: inset 3px 3px 6px var(--sh-in), inset -2px -2px 5px var(--sh-hi); }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 38px; height: 38px; margin-top: -10px; border-radius: 50%; border: 0; background: var(--sun-dark); box-shadow: 4px 6px 10px var(--sh-lo), inset 3px 3px 6px rgba(255, 255, 255, .55), inset -4px -4px 7px rgba(0, 0, 0, .2); }
+.slider::-moz-range-thumb { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--sun-dark); box-shadow: 4px 6px 10px var(--sh-lo), inset 3px 3px 6px rgba(255, 255, 255, .55), inset -4px -4px 7px rgba(0, 0, 0, .2); }
+.ticks { display: flex; justify-content: space-between; padding: 0 12px; font-weight: 800; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 520px) {
+  .names { grid-template-columns: 1fr; }
+  .team { border-radius: 22px; }
+  .qbox { border-radius: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bob, .win-a .team-a .bob, .win-b .team-b .bob { animation: none !important; }
+  #pull, .ropeg, .lean, .pip, .key { transition: none !important; }
+  .qtext.pop, .answer.wrong { animation: none; }
+  .confetti { display: none; }
+}
+</style>
+
+<main class="app">
+  <header class="top">
+    <div class="brand">Tarik Tambang <span>Numerasi</span></div>
+    <div class="top-right">
+      <div class="pill" id="targetPill">Menang jika selisih 3</div>
+      <button class="btn small" id="menuBtn" type="button">Pengaturan</button>
+    </div>
+  </header>
+
+  <section class="stage clay" aria-label="Arena tarik tambang">
+    <svg id="scene" viewBox="0 0 1000 300" role="img" aria-label="Dua tokoh clay saling menarik tambang">
+      <defs>
+        <filter id="clay" x="-15%" y="-10%" width="130%" height="125%" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="blur"/>
+          <feSpecularLighting in="blur" surfaceScale="4" specularConstant=".6" specularExponent="22" lighting-color="#ffffff" result="spec">
+            <feDistantLight azimuth="235" elevation="52"/>
+          </feSpecularLighting>
+          <feComposite in="spec" in2="SourceAlpha" operator="in" result="specClip"/>
+          <feComposite in="SourceGraphic" in2="specClip" operator="arithmetic" k1="0" k2="1" k3=".85" k4="0" result="lit"/>
+          <feDropShadow in="lit" dx="0" dy="6" stdDeviation="4" flood-color="#2a1a08" flood-opacity=".3"/>
+        </filter>
+      </defs>
+
+      <g filter="url(#clay)">
+        <ellipse class="sc-cloud" cx="150" cy="60" rx="62" ry="22"/><ellipse class="sc-cloud" cx="190" cy="48" rx="38" ry="22"/>
+        <ellipse class="sc-cloud" cx="820" cy="46" rx="58" ry="20"/><ellipse class="sc-cloud" cx="852" cy="36" rx="34" ry="20"/>
+        <ellipse class="sc-hill1" cx="170" cy="262" rx="360" ry="92"/>
+        <ellipse class="sc-hill2" cx="820" cy="272" rx="400" ry="100"/>
+      </g>
+      <g filter="url(#clay)">
+        <rect class="sc-ground" x="-30" y="228" width="1060" height="100" rx="44"/>
+      </g>
+      <g>
+        <circle class="sc-pebble" cx="90" cy="262" r="7"/><circle class="sc-pebble" cx="130" cy="272" r="5"/>
+        <circle class="sc-pebble" cx="430" cy="268" r="6"/><circle class="sc-pebble" cx="590" cy="274" r="5"/>
+        <circle class="sc-pebble" cx="900" cy="264" r="7"/><circle class="sc-pebble" cx="860" cy="276" r="5"/>
+      </g>
+
+      <line class="sc-mid" x1="500" y1="80" x2="500" y2="234"/>
+      <line class="sc-goal sc-goal-a" x1="250" y1="62" x2="250" y2="236"/>
+      <line class="sc-goal sc-goal-b" x1="750" y1="62" x2="750" y2="236"/>
+      <path class="sc-flag-a" d="M250 62 L250 30 L290 46 Z"/>
+      <path class="sc-flag-b" d="M750 62 L750 30 L710 46 Z"/>
+      <text class="sc-label" id="goalA" x="250" y="22">Tim Jingga</text>
+      <text class="sc-label" id="goalB" x="750" y="22">Tim Biru</text>
+
+      <g id="pull">
+        <g class="ropeg">
+          <path class="sc-rope" d="M340 104 Q500 138 660 104"/>
+          <path class="sc-rope-hi" d="M340 104 Q500 138 660 104"/>
+          <g filter="url(#clay)" transform="translate(500 121)">
+            <circle class="sc-knot" cx="0" cy="0" r="8"/>
+            <polygon class="sc-ribbon" points="-10,6 10,6 15,42 0,35 -15,42"/>
+          </g>
+        </g>
+
+        <g class="team-a" transform="translate(330 230) scale(1.2)">
+          <ellipse class="cshadow" cx="4" cy="3" rx="52" ry="9"/>
+          <g class="bob"><g class="lean" id="leanA" filter="url(#clay)">
+            <polyline class="limb pants" points="-6,-58 -30,-28 -40,-4"/><ellipse class="shoe" cx="-42" cy="-3" rx="15" ry="8"/>
+            <polyline class="limb pants" points="6,-58 30,-34 36,-6"/><ellipse class="shoe" cx="40" cy="-3" rx="15" ry="8"/>
+            <polyline class="limb skin pose-pull" points="6,-100 36,-92 62,-86"/>
+            <ellipse class="shirt" cx="0" cy="-84" rx="27" ry="35"/>
+            <g class="pose-pull"><polyline class="limb skin" points="10,-104 40,-96 66,-88"/><circle class="skin" cx="64" cy="-87" r="10"/></g>
+            <g class="pose-cheer">
+              <polyline class="limb skin" points="-8,-106 -28,-136 -36,-170"/><circle class="skin" cx="-36" cy="-172" r="10"/>
+              <polyline class="limb skin" points="8,-106 30,-138 42,-172"/><circle class="skin" cx="43" cy="-174" r="10"/>
+            </g>
+            <circle class="skin" cx="6" cy="-142" r="23"/>
+            <path class="hair" d="M-17 -146 Q-12 -172 8 -168 Q29 -167 30 -146 Q14 -157 -17 -146Z"/>
+            <path class="band" d="M-17 -148 Q6 -160 29 -148 L29 -141 Q6 -153 -17 -141Z"/>
+            <g class="face-pull">
+              <circle class="face-ink" cx="10" cy="-136" r="3.2"/><circle class="face-ink" cx="22" cy="-136" r="3.2"/>
+              <path class="brow" d="M5 -143 L14 -140 M18 -140 L27 -143"/>
+              <path class="teeth" d="M10 -127 Q17 -119 24 -127 Z"/>
+            </g>
+            <g class="face-cheer">
+              <path class="brow" d="M5 -137 Q10 -145 15 -137 M17 -137 Q22 -145 27 -137"/>
+              <path class="face-ink" d="M8 -130 Q17 -110 26 -130 Z"/><ellipse class="tongue" cx="17" cy="-121" rx="5" ry="3"/>
+            </g>
+          </g></g>
+        </g>
+
+        <g class="team-b" transform="translate(670 230) scale(-1.2 1.2)">
+          <ellipse class="cshadow" cx="4" cy="3" rx="52" ry="9"/>
+          <g class="bob"><g class="lean" id="leanB" filter="url(#clay)">
+            <polyline class="limb pants" points="-6,-58 -30,-28 -40,-4"/><ellipse class="shoe" cx="-42" cy="-3" rx="15" ry="8"/>
+            <polyline class="limb pants" points="6,-58 30,-34 36,-6"/><ellipse class="shoe" cx="40" cy="-3" rx="15" ry="8"/>
+            <polyline class="limb skin pose-pull" points="6,-100 36,-92 62,-86"/>
+            <ellipse class="shirt" cx="0" cy="-84" rx="27" ry="35"/>
+            <g class="pose-pull"><polyline class="limb skin" points="10,-104 40,-96 66,-88"/><circle class="skin" cx="64" cy="-87" r="10"/></g>
+            <g class="pose-cheer">
+              <polyline class="limb skin" points="-8,-106 -28,-136 -36,-170"/><circle class="skin" cx="-36" cy="-172" r="10"/>
+              <polyline class="limb skin" points="8,-106 30,-138 42,-172"/><circle class="skin" cx="43" cy="-174" r="10"/>
+            </g>
+            <circle class="skin" cx="6" cy="-142" r="23"/>
+            <path class="hair" d="M-17 -146 Q-12 -172 8 -168 Q29 -167 30 -146 Q14 -157 -17 -146Z"/>
+            <path class="band" d="M-17 -148 Q6 -160 29 -148 L29 -141 Q6 -153 -17 -141Z"/>
+            <g class="face-pull">
+              <circle class="face-ink" cx="10" cy="-136" r="3.2"/><circle class="face-ink" cx="22" cy="-136" r="3.2"/>
+              <path class="brow" d="M5 -143 L14 -140 M18 -140 L27 -143"/>
+              <path class="teeth" d="M10 -127 Q17 -119 24 -127 Z"/>
+            </g>
+            <g class="face-cheer">
+              <path class="brow" d="M5 -137 Q10 -145 15 -137 M17 -137 Q22 -145 27 -137"/>
+              <path class="face-ink" d="M8 -130 Q17 -110 26 -130 Z"/><ellipse class="tongue" cx="17" cy="-121" rx="5" ry="3"/>
+            </g>
+          </g></g>
+        </g>
+      </g>
+    </svg>
+    <div class="gauge-wrap">
+      <div class="gauge-label" id="gaugeLabel" aria-live="polite">Tambang di tengah</div>
+      <div class="gauge" id="gauge" aria-hidden="true"></div>
+    </div>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+  </section>
+
+  <section class="result clay" id="result" hidden aria-live="polite">
+    <h2 id="resultTitle"></h2>
+    <p id="resultSub"></p>
+    <div class="row">
+      <button class="btn primary" id="againBtn" type="button">Main lagi</button>
+      <button class="btn" id="changeBtn" type="button">Ubah pengaturan</button>
+    </div>
+  </section>
+
+  <section class="teams" id="teams" aria-label="Papan jawaban kedua tim"></section>
+
+  <p class="credit">Dikembangkan oleh <b>Devan Aditya Rahman, M.Pd</b></p>
+</main>
+
+<div class="overlay" id="setupOverlay" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <form class="setup clay" id="setupForm" autocomplete="off">
+    <h1 id="setupTitle">Tarik Tambang <span>Numerasi</span></h1>
+    <ul class="rules">
+      <li>Tiap tim punya soal sendiri. Jawaban benar menarik tambang ke timmu, lalu soal berganti.</li>
+      <li>Jawaban salah tidak menggeser tambang. Tim boleh mencoba lagi sampai benar.</li>
+      <li>Tim menang saat selisih jawaban benar dengan lawan mencapai target.</li>
+      <li>Soal kedua tim berbeda, tetapi jenis dan tingkat kesulitannya sama pada setiap urutan.</li>
+    </ul>
+    <div class="names">
+      <div class="field"><label for="nameAInput">Tim kiri</label><input type="text" id="nameAInput" maxlength="14" value="Tim Jingga"></div>
+      <div class="field"><label for="nameBInput">Tim kanan</label><input type="text" id="nameBInput" maxlength="14" value="Tim Biru"></div>
+    </div>
+    <div class="field">
+      <div class="slider-head"><label class="lbl" for="targetRange">Selisih untuk menang</label><output id="targetOut" for="targetRange">3 soal</output></div>
+      <input class="slider" type="range" id="targetRange" min="1" max="10" step="1" value="3">
+      <div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+    </div>
+    <fieldset>
+      <legend>Jenis soal</legend>
+      <div class="segs">
+        <label class="seg"><input type="radio" name="kind" value="mix" checked><span>Campuran</span></label>
+        <label class="seg"><input type="radio" name="kind" value="add"><span>Penjumlahan</span></label>
+        <label class="seg"><input type="radio" name="kind" value="sub"><span>Pengurangan</span></label>
+        <label class="seg"><input type="radio" name="kind" value="mul"><span>Perkalian</span></label>
+      </div>
+    </fieldset>
+    <div class="row">
+      <button class="btn primary big" type="submit" id="startBtn">Mulai Permainan</button>
+      <button class="btn big" type="button" id="resumeBtn" hidden>Lanjutkan</button>
+    </div>
+    <p class="credit">Dikembangkan oleh <b>Devan Aditya Rahman, M.Pd</b></p>
+  </form>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /*PURE-START*/
+  function rnd(lo, hi, rng) { return Math.floor(rng() * (hi - lo + 1)) + lo; }
+  function shuffle(arr, rng) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1)), t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+  function genAdd(rng) {
+    var a = rnd(11, 99, rng), b = rnd(11, 99, rng);
+    return { type: 'add', text: a + ' + ' + b, ans: a + b, x: a, y: b };
+  }
+  function genSub(rng) {
+    var a = rnd(11, 99, rng), b = rnd(11, 99, rng);
+    while (b === a) b = rnd(11, 99, rng);
+    var hi = Math.max(a, b), lo = Math.min(a, b);
+    return { type: 'sub', text: hi + ' \u2212 ' + lo, ans: hi - lo, x: hi, y: lo };
+  }
+  function genMul(rng) {
+    var n = rnd(1, 20, rng), m = rnd(1, 5, rng), ord = rng() < 0.5 ? 0 : 1;
+    return { type: 'mul', text: ord ? m + ' \u00d7 ' + n : n + ' \u00d7 ' + m, ans: n * m, x: n, y: m, ord: ord };
+  }
+  /* Profil kesulitan: dua soal dengan profil sama dianggap setara. */
+  function profile(q) {
+    if (q.type === 'add') return 'add|' + (((q.x % 10) + (q.y % 10)) >= 10 ? 1 : 0) + '|' + (q.ans >= 100 ? 1 : 0);
+    if (q.type === 'sub') return 'sub|' + ((q.x % 10) < (q.y % 10) ? 1 : 0) + '|' + (q.ans < 10 ? 1 : 0);
+    return 'mul|' + (q.x >= 10 ? 2 : 1) + '|' + q.y + '|' + q.ord + '|' + (((q.x % 10) * q.y) >= 10 ? 1 : 0) + '|' + (q.x % 10 === 0 ? 1 : 0) + '|' + ((q.x === 1 || q.y === 1) ? 1 : 0);
+  }
+  function genOf(type, rng) { return type === 'add' ? genAdd(rng) : (type === 'sub' ? genSub(rng) : genMul(rng)); }
+  function pairFor(type, rng, seenA, seenB, relax) {
+    for (var i = 0; i < 80; i++) {
+      var a = genOf(type, rng);
+      if (!relax && seenA[a.text]) continue;
+      var pk = profile(a);
+      for (var j = 0; j < 80; j++) {
+        var b = genOf(type, rng);
+        if (profile(b) === pk && b.text !== a.text && (relax || !seenB[b.text])) return [a, b];
+      }
+    }
+    return null;
+  }
+  /* Dua bank soal berbeda, tetapi pada setiap urutan jenis dan profil kesulitannya sama. */
+  function buildBanks(kind, rng, size) {
+    rng = rng || Math.random; size = size || 200;
+    var order = ['add', 'sub', 'mul'], types = [], i;
+    for (i = 0; i < size; i++) types.push(kind === 'mix' ? order[i % 3] : kind);
+    shuffle(types, rng);
+    var seenA = {}, seenB = {}, A = [], B = [];
+    for (i = 0; i < size; i++) {
+      var p = pairFor(types[i], rng, seenA, seenB, false);
+      while (!p) p = pairFor(types[i], rng, seenA, seenB, true);
+      seenA[p[0].text] = 1; seenB[p[1].text] = 1;
+      A.push(p[0]); B.push(p[1]);
+    }
+    return { a: A, b: B };
+  }
+  function winnerOf(d, t) { return d >= t ? 'a' : (d <= -t ? 'b' : null); }
+  function ropeShift(d, t, max) { var c = Math.max(-1, Math.min(1, d / t)); return -c * max; }
+  /*PURE-END*/
+
+  var $ = function (s) { return document.querySelector(s); };
+  var TEAMS = ['a', 'b'];
+  var DEFAULT_NAMES = { a: 'Tim Jingga', b: 'Tim Biru' };
+  var SHIFT_MAX = 250;
+  var KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'send'];
+  var TYPE_LABEL = { add: 'Penjumlahan', sub: 'Pengurangan', mul: 'Perkalian' };
+
+  var S = {
+    target: 3, kind: 'mix', names: { a: DEFAULT_NAMES.a, b: DEFAULT_NAMES.b },
+    bank: buildBanks('mix'), idx: { a: 0, b: 0 },
+    input: { a: '', b: '' }, wrongVal: { a: null, b: null }, msg: { a: null, b: null },
+    shake: { a: false, b: false }, pop: { a: false, b: false },
+    stats: { a: { c: 0, w: 0 }, b: { c: 0, w: 0 } },
+    phase: 'setup', resume: false
+  };
+  function cur(t) { var bk = S.bank[t]; return bk[S.idx[t] % bk.length]; }
+  function diff() { return S.stats.a.c - S.stats.b.c; }
+
+  $('#teams').innerHTML = TEAMS.map(function (t) {
+    var pad = KEYS.map(function (k) {
+      var label = k === 'del' ? 'Hapus' : (k === 'send' ? 'Kirim' : k);
+      var cls = k === 'del' ? 'key del' : (k === 'send' ? 'key send' : 'key');
+      return '<button type="button" class="' + cls + '" data-k="' + k + '">' + label + '</button>';
+    }).join('');
+    return '<article class="team clay" data-team="' + t + '">' +
+      '<div class="team-head"><span class="team-name" id="name-' + t + '"></span>' +
+      '<div class="tally"><span class="ok">Benar <b id="c-' + t + '">0</b></span><span class="bad">Salah <b id="w-' + t + '">0</b></span></div></div>' +
+      '<div class="qbox"><div class="qtype" id="qt-' + t + '"></div><div class="qtext" id="qx-' + t + '"></div></div>' +
+      '<div class="answer" id="ans-' + t + '" role="status"></div>' +
+      '<div class="fb" id="fb-' + t + '"></div>' +
+      '<div class="pad" id="pad-' + t + '">' + pad + '</div></article>';
+  }).join('');
+
+  function renderScene() {
+    $('#pull').style.transform = 'translate(' + ropeShift(diff(), S.target, SHIFT_MAX) + 'px, 0)';
+    $('#goalA').textContent = S.names.a;
+    $('#goalB').textContent = S.names.b;
+    $('#targetPill').textContent = 'Menang jika selisih ' + S.target;
+  }
+  function buildPips() {
+    var n = 2 * S.target + 1, html = '';
+    for (var i = 0; i < n; i++) html += '<span class="pip ' + (i < S.target ? 'pa' : (i > S.target ? 'pb' : 'pm')) + '"></span>';
+    $('#gauge').innerHTML = html;
+  }
+  function renderGauge() {
+    var T = S.target, d = diff(), c = Math.max(-T, Math.min(T, d)), idx = T - c;
+    var pips = $('#gauge').children;
+    for (var i = 0; i < pips.length; i++) pips[i].classList.toggle('on', i === idx);
+    $('#gaugeLabel').textContent = d === 0
+      ? 'Seri. Tambang di tengah. Target selisih ' + T
+      : S.names[d > 0 ? 'a' : 'b'] + ' unggul ' + Math.abs(d) + ' soal. Target selisih ' + T;
+  }
+  function renderTeam(t) {
+    var q = cur(t), live = S.phase === 'play';
+    $('#name-' + t).textContent = S.names[t];
+    $('#c-' + t).textContent = S.stats[t].c;
+    $('#w-' + t).textContent = S.stats[t].w;
+    $('#qt-' + t).textContent = TYPE_LABEL[q.type] + ' · Soal ' + (S.stats[t].c + 1);
+    var qx = $('#qx-' + t);
+    qx.textContent = q.text;
+    qx.className = 'qtext' + (S.pop[t] ? ' pop' : '');
+    var ans = $('#ans-' + t), wrong = S.input[t] === '' && S.wrongVal[t] !== null;
+    ans.className = 'answer' + (wrong && S.shake[t] ? ' wrong' : (wrong ? ' wrong' : ''));
+    if (S.shake[t] === false && wrong) ans.style.animation = 'none'; else ans.style.animation = '';
+    if (S.input[t]) ans.innerHTML = '<span>' + S.input[t] + '</span>';
+    else if (wrong) ans.innerHTML = '<span>' + S.wrongVal[t] + '</span>';
+    else ans.innerHTML = '<span class="ph">?</span>';
+    S.shake[t] = false; S.pop[t] = false;
+    var fb = $('#fb-' + t), m = S.msg[t];
+    if (m) { fb.className = 'fb ' + m.c; fb.textContent = m.t; }
+    else { fb.className = 'fb'; fb.textContent = live ? 'Ketik jawaban lalu tekan Kirim' : (S.phase === 'setup' ? 'Atur permainan lalu tekan Mulai' : ''); }
+    var btns = $('#pad-' + t).children;
+    for (var i = 0; i < btns.length; i++) btns[i].disabled = !live;
+  }
+  function renderAll() { renderScene(); renderGauge(); TEAMS.forEach(renderTeam); }
+
+  function tug(team) {
+    var el = $(team === 'a' ? '#leanA' : '#leanB');
+    if (el && el.animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.animate([{ transform: 'rotate(-14deg)' }, { transform: 'rotate(-28deg)' }, { transform: 'rotate(-14deg)' }], { duration: 560, easing: 'ease-in-out' });
+    }
+  }
+  function submit(t) {
+    if (S.phase !== 'play' || S.input[t] === '') return;
+    var q = cur(t), val = parseInt(S.input[t], 10);
+    S.input[t] = '';
+    if (val === q.ans) {
+      S.stats[t].c += 1; S.idx[t] += 1; S.wrongVal[t] = null;
+      S.msg[t] = { t: 'Benar! Tambang tertarik ke timmu', c: 'ok' };
+      S.pop[t] = true;
+      tug(t);
+      renderScene(); renderGauge(); renderTeam(t);
+      var w = winnerOf(diff(), S.target);
+      if (w) finish(w);
+    } else {
+      S.stats[t].w += 1; S.wrongVal[t] = val; S.shake[t] = true;
+      S.msg[t] = { t: 'Belum tepat. Coba lagi!', c: 'bad' };
+      renderTeam(t);
+    }
+  }
+  function onKey(t, k) {
+    if (S.phase !== 'play') return;
+    if (k === 'send') { submit(t); return; }
+    S.msg[t] = null; S.wrongVal[t] = null;
+    if (k === 'del') S.input[t] = S.input[t].slice(0, -1);
+    else if (S.input[t].length < 4) S.input[t] += k;
+    renderTeam(t);
+  }
+  function confetti() {
+    var cols = ['var(--a)', 'var(--b)', 'var(--sun)', 'var(--ok)'], html = '';
+    for (var i = 0; i < 44; i++) {
+      html += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + cols[i % 4] +
+        ';animation-duration:' + (2.6 + Math.random() * 2.2).toFixed(2) + 's;animation-delay:' + (Math.random() * 1.2).toFixed(2) + 's"></i>';
+    }
+    $('#confetti').innerHTML = html;
+  }
+  function finish(w) {
+    S.phase = 'over';
+    var l = w === 'a' ? 'b' : 'a';
+    S.msg[w] = { t: 'Selamat, timmu menang!', c: 'ok' };
+    S.msg[l] = { t: 'Tetap semangat, main lagi yuk!', c: '' };
+    $('#scene').classList.add('win-' + w);
+    var ttl = $('#resultTitle');
+    ttl.innerHTML = '';
+    var chip = document.createElement('span');
+    chip.className = 'team-name';
+    chip.style.setProperty('--c', w === 'a' ? 'var(--a)' : 'var(--b)');
+    chip.style.setProperty('--on-c', w === 'a' ? 'var(--on-a)' : 'var(--on-b)');
+    chip.textContent = S.names[w];
+    ttl.appendChild(chip);
+    ttl.appendChild(document.createTextNode('menang!'));
+    $('#resultSub').textContent = S.names.a + ' ' + S.stats.a.c + ' benar, ' + S.names.b + ' ' + S.stats.b.c + ' benar. Selisih ' + Math.abs(diff()) + ' dari target ' + S.target + '.';
+    $('#result').hidden = false;
+    renderAll();
+    confetti();
+  }
+  function readSettings() {
+    S.target = parseInt($('#targetRange').value, 10);
+    S.kind = document.querySelector('input[name="kind"]:checked').value;
+    S.names.a = $('#nameAInput').value.trim() || DEFAULT_NAMES.a;
+    S.names.b = $('#nameBInput').value.trim() || DEFAULT_NAMES.b;
+  }
+  function startGame() {
+    readSettings();
+    S.bank = buildBanks(S.kind);
+    S.idx = { a: 0, b: 0 };
+    S.input = { a: '', b: '' }; S.wrongVal = { a: null, b: null }; S.msg = { a: null, b: null };
+    S.stats = { a: { c: 0, w: 0 }, b: { c: 0, w: 0 } };
+    S.resume = false; S.phase = 'play';
+    $('#scene').classList.remove('win-a', 'win-b');
+    $('#result').hidden = true;
+    $('#confetti').innerHTML = '';
+    $('#setupOverlay').hidden = true;
+    buildPips();
+    renderAll();
+  }
+  function openSetup() {
+    S.resume = S.phase === 'play';
+    if (S.resume) S.phase = 'paused';
+    $('#resumeBtn').hidden = !S.resume;
+    $('#setupOverlay').hidden = false;
+    renderAll();
+    $('#startBtn').focus();
+  }
+  function resumeGame() {
+    if (!S.resume) return;
+    S.resume = false; S.phase = 'play';
+    $('#setupOverlay').hidden = true;
+    renderAll();
+  }
+  function syncSlider() {
+    var r = $('#targetRange'), v = parseInt(r.value, 10);
+    r.style.setProperty('--p', ((v - 1) / 9 * 100) + '%');
+    $('#targetOut').textContent = v + ' soal';
+  }
+
+  $('#teams').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-k]');
+    if (btn) onKey(btn.closest('.team').dataset.team, btn.dataset.k);
+  });
+  $('#setupForm').addEventListener('submit', function (e) { e.preventDefault(); startGame(); });
+  $('#targetRange').addEventListener('input', syncSlider);
+  $('#menuBtn').addEventListener('click', openSetup);
+  $('#againBtn').addEventListener('click', startGame);
+  $('#changeBtn').addEventListener('click', openSetup);
+  $('#resumeBtn').addEventListener('click', resumeGame);
+
+  syncSlider();
+  buildPips();
+  renderAll();
+})();
+</script>
+
+</body></html>
