@@ -341,7 +341,7 @@ function showQ(){
   const q=G.cur=G.qs[G.qi],m2=G.m2;G.lock=false;G.wrong=0;G.lv=[2,2];G.T=G.t=q.t==='type'?30:22;
   clearMos();$('#fb').classList.remove('show');
   ['#zl','#zr','#zi0','#zi1'].forEach(s=>$(s).classList.remove('out'));
-  $('#qn').textContent=`Soal ${G.qi+1}/${G.N}`;$('#qe').textContent=q.e;$('#qcard').classList.toggle('kbm',!m2&&q.t==='type');$('#qw').classList.remove('slots');$('#inrow').hidden=m2||q.t!=='type';$('#in').value='';
+  $('#qn').textContent=`Soal ${G.qi+1}/${G.N}`;$('#qe').textContent=q.e;$('#qcard').classList.toggle('kbm',!m2&&q.t==='type');if(!m2&&q.t==='type'&&!document.querySelector('.kb1'))buildKb1();$('#qw').classList.remove('slots');$('#inrow').hidden=m2||q.t!=='type';$('#in').value='';
   [0,1].forEach(k=>{$('#zi'+k).hidden=!(m2&&q.t==='type');$('#i'+(k+1)).value=''});
   if(q.t==='choice'){$('#qp').textContent='Tangkap nyamuk yang membawa NAMA BENDA ini!';$('#qw').textContent=''}
   if(q.t==='blank'){q.i=R(q.w.length);$('#qp').textContent='Tangkap nyamuk dengan HURUF yang hilang!';$('#qw').textContent=q.w.split('').map((c,j)=>j===q.i?'_':c).join(' ').toUpperCase()}
